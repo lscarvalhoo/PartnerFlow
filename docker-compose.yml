@@ -24,9 +24,6 @@ services:
       - REDIS_URL=redis:6379
     networks:
       - partnerflow-network
-    # ❌ Removido o volume que sobrescrevia os arquivos publicados
-    # volumes:
-    #   - .:/app
 
   sqlserver:
     container_name: partnerflow-sqlserver

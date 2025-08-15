@@ -1,9 +1,14 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using PartnerFlow.Application.Services;
+using PartnerFlow.Domain.Interfaces.Broker;
 using PartnerFlow.Domain.Interfaces.Repositories;
 using PartnerFlow.Domain.Interfaces.Services;
+using PartnerFlow.Infrastructure.Broker;
 using PartnerFlow.Infrastructure.Config;
 using PartnerFlow.Infrastructure.Persistence.Mongo;
 using PartnerFlow.Infrastructure.Persistence.Sql;
@@ -40,17 +45,28 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
+BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
 builder.Services.Configure<MongoDbSettings>(
     builder.Configuration.GetSection("MongoDbSettings"));
+
+builder.Services.AddScoped<MongoContext>();
 
 builder.Services.AddDbContext<PartnerFlowDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer")));
 
 builder.Services.AddScoped<IPedidoRepository, PedidoSqlRepository>();
-builder.Services.AddScoped<ItemPedidoMongoRepository>();
-builder.Services.AddScoped<IPedidoService, PedidoService>();
+
+builder.Services.AddScoped<IItemPedidoRepository, ItemPedidoMongoRepository>();
+
+builder.Services.AddScoped<IPedidoService, PedidoService>(); 
+
+builder.Services.Configure<KafkaSettings>(
+    builder.Configuration.GetSection("Kafka"));
+
+builder.Services.AddSingleton<IKafkaProducer, KafkaProducer>();
 
 var app = builder.Build();
+
 
 app.UseSwagger();
 app.UseSwaggerUI();
