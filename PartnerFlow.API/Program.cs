@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using PartnerFlow.Application.Services;
 using PartnerFlow.Domain.Interfaces.Repositories;
 using PartnerFlow.Domain.Interfaces.Services;
+using PartnerFlow.Infrastructure.Config;
+using PartnerFlow.Infrastructure.Persistence.Mongo;
 using PartnerFlow.Infrastructure.Persistence.Sql;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,7 +40,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
+builder.Services.Configure<MongoDbSettings>(
+    builder.Configuration.GetSection("MongoDbSettings"));
+
+builder.Services.AddDbContext<PartnerFlowDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer")));
+
 builder.Services.AddScoped<IPedidoRepository, PedidoSqlRepository>();
+builder.Services.AddScoped<ItemPedidoMongoRepository>();
 builder.Services.AddScoped<IPedidoService, PedidoService>();
 
 var app = builder.Build();

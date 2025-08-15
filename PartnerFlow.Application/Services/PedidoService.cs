@@ -6,20 +6,28 @@ namespace PartnerFlow.Application.Services;
 
 public class PedidoService : IPedidoService
 {
-    private readonly IPedidoRepository _repository;
+    private readonly IPedidoRepository _pedidoRepository;
+    private readonly IItemPedidoRepository _itemRepository;
 
-    public PedidoService(IPedidoRepository repository)
+    public PedidoService(IPedidoRepository pedidoRepository, IItemPedidoRepository itemRepository)
     {
-        _repository = repository;
+        _pedidoRepository = pedidoRepository;
+        _itemRepository = itemRepository;
     }
 
     public async Task CriarPedidoAsync(Pedido pedido)
     {
-        await _repository.CriarPedidoAsync(pedido);
+        await _pedidoRepository.CriarPedidoAsync(pedido);
+        await _itemRepository.InserirItensAsync(pedido.Id, pedido.Itens);
     }
 
     public async Task<Pedido?> ObterPedidoAsync(Guid id)
     {
-        return await _repository.ObterPedidoPorIdAsync(id);
+        var pedido = await _pedidoRepository.ObterPedidoPorIdAsync(id);
+        if (pedido == null) 
+            return null;
+
+        pedido.Itens = await _itemRepository.ObterItensPorPedidoId(id);
+        return pedido;
     }
 }
