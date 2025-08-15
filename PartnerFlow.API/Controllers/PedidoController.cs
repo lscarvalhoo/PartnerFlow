@@ -7,7 +7,7 @@ namespace PartnerFlow.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+//[Authorize]
 public class PedidoController : ControllerBase
 {
     private readonly IPedidoService _pedidoService;
