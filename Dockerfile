@@ -16,5 +16,11 @@ RUN dotnet publish PartnerFlow.API/PartnerFlow.API.csproj -c Release -o /app/pub
 
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /app
+
+RUN apt-get update && \
+    apt-get install -y iputils-ping && \
+    rm -rf /var/lib/apt/lists/*
+
 COPY --from=build /app/publish .
+
 ENTRYPOINT ["dotnet", "PartnerFlow.API.dll"]

@@ -18,7 +18,11 @@ public class KafkaProducer : IKafkaProducer
 
         var config = new ProducerConfig
         {
-            BootstrapServers = _settings.Broker
+            BootstrapServers = _settings.Broker,
+            Acks = Acks.All,
+            RequestTimeoutMs = 5000,
+            SocketTimeoutMs = 3000,
+            EnableIdempotence = true
         };
 
         _producer = new ProducerBuilder<Null, string>(config).Build();
@@ -26,15 +30,23 @@ public class KafkaProducer : IKafkaProducer
 
     public async Task PublishPedidoCriadoAsync(Pedido pedido)
     {
-        var evento = new
+        try
         {
-            PedidoId = pedido.Id,
-            ClienteId = pedido.ClienteId,
-            Data = pedido.Data,
-            Status = pedido.Status
-        };
+            var evento = new
+            {
+                PedidoId = pedido.Id,
+                ClienteId = pedido.ClienteId,
+                Data = pedido.Data,
+                Status = pedido.Status
+            };
 
-        var mensagem = JsonSerializer.Serialize(evento);
-        await _producer.ProduceAsync(_settings.Topic, new Message<Null, string> { Value = mensagem });
+            var mensagem = JsonSerializer.Serialize(evento);
+
+            await _producer.ProduceAsync(_settings.Topic, new Message<Null, string> { Value = mensagem });
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Erro ao publicar mensagem no Kafka.", ex);
+        }
     }
 }

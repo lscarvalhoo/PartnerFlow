@@ -20,7 +20,7 @@ services:
       - DB_USER=sa
       - DB_PASSWORD=StrongP@ssw0rd
       - MONGO_URL=mongodb://mongo:27017
-      - KAFKA_BROKER=kafka:9092
+      - KAFKA_BROKER=partnerflow-kafka:29092
       - REDIS_URL=redis:6379
     networks:
       - partnerflow-network
@@ -58,28 +58,52 @@ services:
 
   zookeeper:
     container_name: partnerflow-zookeeper
-    image: confluentinc/cp-zookeeper:latest
+    image: confluentinc/cp-zookeeper:7.5.3
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
     ports:
       - "2181:2181"
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper
     networks:
       - partnerflow-network
 
   kafka:
     container_name: partnerflow-kafka
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.5.3
+    hostname: partnerflow-kafka
     depends_on:
       - zookeeper
     ports:
       - "9092:9092"
+      - "29092:29092"
     environment:
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
       KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT_INTERNAL://0.0.0.0:29092,PLAINTEXT_EXTERNAL://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_INTERNAL://partnerflow-kafka:29092,PLAINTEXT_EXTERNAL://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT_INTERNAL:PLAINTEXT,PLAINTEXT_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LOG_RETENTION_HOURS: 168
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_CREATE_TOPICS: "pedidos:1:1"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    networks:
+      - partnerflow-network
+
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=PartnerFlow
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=partnerflow-kafka:29092
+    depends_on:
+      - kafka
     networks:
       - partnerflow-network
 
@@ -89,3 +113,5 @@ networks:
 volumes:
   sqlserver_data:
   mongo_data:
+  zookeeper_data:
+  kafka_data:

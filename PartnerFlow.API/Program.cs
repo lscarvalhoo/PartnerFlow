@@ -6,9 +6,11 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using PartnerFlow.Application.Services;
 using PartnerFlow.Domain.Interfaces.Broker;
+using PartnerFlow.Domain.Interfaces.Cache;
 using PartnerFlow.Domain.Interfaces.Repositories;
 using PartnerFlow.Domain.Interfaces.Services;
 using PartnerFlow.Infrastructure.Broker;
+using PartnerFlow.Infrastructure.Cache;
 using PartnerFlow.Infrastructure.Config;
 using PartnerFlow.Infrastructure.Persistence.Mongo;
 using PartnerFlow.Infrastructure.Persistence.Sql;
@@ -58,12 +60,19 @@ builder.Services.AddScoped<IPedidoRepository, PedidoSqlRepository>();
 
 builder.Services.AddScoped<IItemPedidoRepository, ItemPedidoMongoRepository>();
 
-builder.Services.AddScoped<IPedidoService, PedidoService>(); 
+builder.Services.AddScoped<IPedidoService, PedidoService>();
 
 builder.Services.Configure<KafkaSettings>(
     builder.Configuration.GetSection("Kafka"));
 
 builder.Services.AddSingleton<IKafkaProducer, KafkaProducer>();
+
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetSection("Redis")["ConnectionString"];
+});
+
+builder.Services.AddScoped<ICacheService, RedisCacheService>();
 
 var app = builder.Build();
 

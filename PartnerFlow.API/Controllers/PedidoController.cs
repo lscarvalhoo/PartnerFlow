@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using PartnerFlow.Domain.Entities;
 using PartnerFlow.Domain.Interfaces.Services;
 

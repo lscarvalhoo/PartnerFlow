@@ -1,5 +1,6 @@
 ﻿using PartnerFlow.Domain.Entities;
 using PartnerFlow.Domain.Interfaces.Broker;
+using PartnerFlow.Domain.Interfaces.Cache;
 using PartnerFlow.Domain.Interfaces.Repositories;
 using PartnerFlow.Domain.Interfaces.Services;
 
@@ -11,15 +12,18 @@ public class PedidoService : IPedidoService
     private readonly IPedidoRepository _pedidoRepository;
     private readonly IItemPedidoRepository _itemRepository;
     private readonly IKafkaProducer _kafkaProducer;
+    private readonly ICacheService _cacheService;
 
     public PedidoService(
         IPedidoRepository pedidoRepository,
         IItemPedidoRepository itemRepository,
-        IKafkaProducer kafkaProducer)
+        IKafkaProducer kafkaProducer,
+        ICacheService cacheService)
     {
         _pedidoRepository = pedidoRepository;
         _itemRepository = itemRepository;
         _kafkaProducer = kafkaProducer;
+        _cacheService = cacheService;
     }
 
     public async Task CriarPedidoAsync(Pedido pedido)
@@ -31,11 +35,20 @@ public class PedidoService : IPedidoService
 
     public async Task<Pedido?> ObterPedidoAsync(Guid id)
     {
-        var pedido = await _pedidoRepository.ObterPedidoPorIdAsync(id);
-        if (pedido == null) 
+        var cacheKey = $"pedido:{id}";
+        var pedido = await _cacheService.GetAsync<Pedido>(cacheKey);
+
+        if (pedido != null)
+            return pedido;
+
+        pedido = await _pedidoRepository.ObterPedidoPorIdAsync(id);
+        if (pedido == null)
             return null;
 
         pedido.Itens = await _itemRepository.ObterItensPorPedidoId(id);
+
+        await _cacheService.SetAsync(cacheKey, pedido, TimeSpan.FromMinutes(2));
+
         return pedido;
     }
 }
