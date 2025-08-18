@@ -27,7 +27,14 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "PartnerFlow API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "PartnerFlow API",
+        Version = "v1",
+        Description = "API desenvolvida como parte de um teste técnico para a consultoria Venice.\n\n" +
+                      "Esta API gerencia pedidos com itens, integrando MongoDB, SQL Server, Kafka, Redis e autenticação via JWT.\n\n" +
+                      "Documentação interativa com suporte a autenticação Bearer (JWT)."
+    });
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -46,7 +53,7 @@ builder.Services.AddSwaggerGen(c =>
             {
                 Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
             },
-            new string[] {}
+            Array.Empty<string>()
         }
     });
 });
