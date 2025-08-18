@@ -1,6 +1,4 @@
-﻿using PartnerFlow.Domain.DTOs;
-
-namespace PartnerFlow.Domain.Entities;
+﻿namespace PartnerFlow.Domain.Entities;
 
 public class Pedido
 {

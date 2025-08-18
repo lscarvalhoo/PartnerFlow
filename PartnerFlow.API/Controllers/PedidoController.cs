@@ -1,13 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PartnerFlow.Domain.DTOs;
-using PartnerFlow.Domain.Entities;
 using PartnerFlow.Domain.Interfaces.Services;
 
 namespace PartnerFlow.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-//[Authorize]
+[Authorize]
 public class PedidoController : ControllerBase
 {
     private readonly IPedidoService _pedidoService;

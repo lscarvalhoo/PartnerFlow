@@ -1,5 +1,8 @@
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -15,8 +18,7 @@ using PartnerFlow.Infrastructure.Cache;
 using PartnerFlow.Infrastructure.Config;
 using PartnerFlow.Infrastructure.Persistence.Mongo;
 using PartnerFlow.Infrastructure.Persistence.Sql;
-using FluentValidation;
-using FluentValidation.AspNetCore;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,13 +28,17 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "PartnerFlow API", Version = "v1" });
+
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        In = ParameterLocation.Header,
-        Description = "Informe o token JWT no formato: Bearer {token}",
         Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Insira o token JWT no formato: Bearer {seu token}"
     });
+
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -45,29 +51,20 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer();
-
-builder.Services.AddAuthorization();
+builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDbSettings"));
+builder.Services.Configure<KafkaSettings>(builder.Configuration.GetSection("Kafka"));
+builder.Services.Configure<AuthSettings>(builder.Configuration.GetSection("Auth"));
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 
 BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
-builder.Services.Configure<MongoDbSettings>(
-    builder.Configuration.GetSection("MongoDbSettings"));
-
-builder.Services.AddScoped<MongoContext>();
-
 builder.Services.AddDbContext<PartnerFlowDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer")));
+builder.Services.AddScoped<MongoContext>();
 
 builder.Services.AddScoped<IPedidoRepository, PedidoSqlRepository>();
-
 builder.Services.AddScoped<IItemPedidoRepository, ItemPedidoMongoRepository>();
-
 builder.Services.AddScoped<IPedidoService, PedidoService>();
-
-builder.Services.Configure<KafkaSettings>(
-    builder.Configuration.GetSection("Kafka"));
-
+builder.Services.AddScoped<ICacheService, RedisCacheService>();
 builder.Services.AddSingleton<IKafkaProducer, KafkaProducer>();
 
 builder.Services.AddStackExchangeRedisCache(options =>
@@ -76,12 +73,31 @@ builder.Services.AddStackExchangeRedisCache(options =>
 });
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
 builder.Services.AddValidatorsFromAssemblyContaining<PedidoDtoValidator>();
 builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddScoped<ICacheService, RedisCacheService>();
+
+var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwtSettings.Issuer,
+            ValidateAudience = true,
+            ValidAudience = jwtSettings.Audience,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key)),
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
-
 
 app.UseSwagger();
 app.UseSwaggerUI();

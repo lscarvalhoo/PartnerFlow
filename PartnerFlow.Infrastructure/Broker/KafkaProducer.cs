@@ -34,7 +34,7 @@ public class KafkaProducer : IKafkaProducer
         {
             foreach (var item in pedido.Itens)
             {
-                var evento = new 
+                var evento = new
                 {
                     Evento = "ItemPedidoCriado",
                     PedidoId = pedido.Id,

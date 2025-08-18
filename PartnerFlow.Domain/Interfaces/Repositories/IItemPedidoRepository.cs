@@ -1,5 +1,4 @@
-﻿using PartnerFlow.Domain.DTOs;
-using PartnerFlow.Domain.Entities;
+﻿using PartnerFlow.Domain.Entities;
 
 namespace PartnerFlow.Domain.Interfaces.Repositories
 {
