@@ -32,21 +32,33 @@ public class KafkaProducer : IKafkaProducer
     {
         try
         {
-            var evento = new
+            foreach (var item in pedido.Itens)
             {
-                PedidoId = pedido.Id,
-                ClienteId = pedido.ClienteId,
-                Data = pedido.Data,
-                Status = pedido.Status
-            };
+                var evento = new 
+                {
+                    Evento = "ItemPedidoCriado",
+                    PedidoId = pedido.Id,
+                    ClienteId = pedido.ClienteId,
+                    ItemId = item.Id,
+                    Produto = item.Produto,
+                    Quantidade = item.Quantidade,
+                    PrecoUnitario = item.PrecoUnitario,
+                    Status = item.Status.ToString(),
+                    DataCriacao = item.DataCriacao
+                };
 
-            var mensagem = JsonSerializer.Serialize(evento);
+                var mensagem = JsonSerializer.Serialize(evento);
 
-            await _producer.ProduceAsync(_settings.Topic, new Message<Null, string> { Value = mensagem });
+                await _producer.ProduceAsync(
+                    _settings.Topic,
+                    new Message<Null, string> { Value = mensagem }
+                );
+            }
         }
         catch (Exception ex)
         {
             throw new Exception("Erro ao publicar mensagem no Kafka.", ex);
         }
     }
+
 }

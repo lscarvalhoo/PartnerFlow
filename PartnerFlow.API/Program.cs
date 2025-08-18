@@ -5,6 +5,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using PartnerFlow.Application.Services;
+using PartnerFlow.Application.Validations;
 using PartnerFlow.Domain.Interfaces.Broker;
 using PartnerFlow.Domain.Interfaces.Cache;
 using PartnerFlow.Domain.Interfaces.Repositories;
@@ -14,6 +15,8 @@ using PartnerFlow.Infrastructure.Cache;
 using PartnerFlow.Infrastructure.Config;
 using PartnerFlow.Infrastructure.Persistence.Mongo;
 using PartnerFlow.Infrastructure.Persistence.Sql;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -72,6 +75,9 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.Configuration = builder.Configuration.GetSection("Redis")["ConnectionString"];
 });
 
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddValidatorsFromAssemblyContaining<PedidoDtoValidator>();
+builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddScoped<ICacheService, RedisCacheService>();
 
 var app = builder.Build();

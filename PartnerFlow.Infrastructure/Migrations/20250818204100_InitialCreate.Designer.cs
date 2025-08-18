@@ -12,7 +12,7 @@ using PartnerFlow.Infrastructure.Persistence.Sql;
 namespace PartnerFlow.Infrastructure.Migrations
 {
     [DbContext(typeof(PartnerFlowDbContext))]
-    [Migration("20250815151520_InitialCreate")]
+    [Migration("20250818204100_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -33,12 +33,6 @@ namespace PartnerFlow.Infrastructure.Migrations
 
                     b.Property<Guid>("ClienteId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("Data")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

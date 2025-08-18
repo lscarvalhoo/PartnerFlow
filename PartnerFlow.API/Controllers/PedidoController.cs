@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PartnerFlow.Domain.DTOs;
 using PartnerFlow.Domain.Entities;
 using PartnerFlow.Domain.Interfaces.Services;
 
@@ -17,10 +18,10 @@ public class PedidoController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CriarPedido([FromBody] Pedido pedido)
+    public async Task<IActionResult> CriarPedido([FromBody] PedidoDto pedido)
     {
         await _pedidoService.CriarPedidoAsync(pedido);
-        return CreatedAtAction(nameof(ObterPedido), new { id = pedido.Id }, pedido);
+        return StatusCode(StatusCodes.Status201Created);
     }
 
     [HttpGet("{id}")]

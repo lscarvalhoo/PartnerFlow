@@ -16,8 +16,6 @@ public class PartnerFlowDbContext : DbContext
         {
             e.HasKey(p => p.Id);
             e.Property(p => p.ClienteId).IsRequired();
-            e.Property(p => p.Data).IsRequired();
-            e.Property(p => p.Status).IsRequired();
             e.Ignore(p => p.Itens);
         });
     }

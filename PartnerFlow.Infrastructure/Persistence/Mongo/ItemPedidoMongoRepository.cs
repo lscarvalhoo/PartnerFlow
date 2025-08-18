@@ -18,6 +18,8 @@ public class ItemPedidoMongoRepository : IItemPedidoRepository
         foreach (var item in itens)
         {
             item.PedidoId = pedidoId;
+            item.DataCriacao = DateTime.Now;
+            item.Status = Domain.Enums.StatusPedido.Criado;
         }
         await _context.ItensPedido.InsertManyAsync(itens);
     }

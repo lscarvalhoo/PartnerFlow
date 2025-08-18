@@ -1,4 +1,5 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
+using PartnerFlow.Domain.Enums;
 
 namespace PartnerFlow.Domain.Entities;
 
@@ -14,4 +15,8 @@ public class ItemPedido
     public int Quantidade { get; set; }
 
     public decimal PrecoUnitario { get; set; }
+
+    public StatusPedido Status { get; set; }
+
+    public DateTime DataCriacao { get; set; }
 }
