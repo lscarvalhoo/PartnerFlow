@@ -79,11 +79,11 @@ O padrão **Repository** permite:
 
 ---
 
-📌 Observações Finais
-O projeto segue padrão Clean Architecture, com separação clara entre camadas.
-Aplicação estruturada para escalabilidade, com uso de mensageria, cache e persistência híbrida.
-Possui autenticação JWT integrada e documentada no Swagger para facilitar testes.
-Foi desenvolvido com foco em boas práticas e clareza, voltada ao ambiente corporativo e/ou microserviços distribuídos.
+### 📌 Observações Finais
+- O projeto segue padrão Clean Architecture, com separação clara entre camadas.
+- Aplicação estruturada para escalabilidade, com uso de mensageria, cache e persistência híbrida.
+- Possui autenticação JWT integrada e documentada no Swagger para facilitar testes.
+- Desenvolvido com foco em boas práticas e clareza, voltada ao ambiente corporativo e microserviços distribuídos.
 
 ### Subir a aplicação
 
