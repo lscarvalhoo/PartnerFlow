@@ -11,6 +11,7 @@ Ela integra diferentes tecnologias para armazenar dados, distribuir mensagens e 
 - **SQL Server**
 - **MongoDB**
 - **Kafka**
+- **Kafka UI**
 - **Redis**
 - **JWT**
 - **Docker**
@@ -29,6 +30,7 @@ Separação clara de responsabilidades entre camadas:
 - `Application`: casos de uso (serviços e validações).
 - `Infrastructure`: implementações específicas (banco, cache, mensageria).
 - `API`: entrada/saída e controle da aplicação.
+- `Tests`: testes unitários (xUnit & NSubstitute).
 
 ### ✅ DDD (Domain-Driven Design)
 
@@ -71,11 +73,17 @@ O padrão **Repository** permite:
 
 ### ✅ Requisitos
 
-- [Docker Desktop] **ou** [WSL 2]
-- [.NET 9 SDK]
-- [EF CLI]
+- Docker Desktop **ou** WSL 2
+- .NET 9 SDK
+- EF CLI
 
 ---
+
+📌 Observações Finais
+O projeto segue padrão Clean Architecture, com separação clara entre camadas.
+Aplicação estruturada para escalabilidade, com uso de mensageria, cache e persistência híbrida.
+Possui autenticação JWT integrada e documentada no Swagger para facilitar testes.
+Foi desenvolvido com foco em boas práticas e clareza, voltada ao ambiente corporativo e/ou microserviços distribuídos.
 
 ### Subir a aplicação
 
@@ -110,7 +118,7 @@ Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 🔧 Ferramentas de Acesso e Apoio
 
 🔍 Kafka UI
-📎 http://localhost:8080/ui/clusters/PartnerFlow/all-topics/pedidos/messages?keySerde=String&valueSerde=String&limit=100
+http://localhost:8080/ui/clusters/PartnerFlow/all-topics/pedidos/messages?keySerde=String&valueSerde=String&limit=100
 
 💾 Redis (via RedisInsight)
 Host: localhost
@@ -126,10 +134,5 @@ Usuário: sa
 Senha: StrongP@ssw0rd
 Banco: PartnerFlowDb
 
-📌 Observações Finais
-O projeto segue padrões modernos de arquitetura, como Clean Architecture, com separação clara entre camadas.
-Aplicação estruturada para escalabilidade, com uso de mensageria, cache e persistência híbrida.
-Possui autenticação JWT integrada e documentada no Swagger para facilitar testes.
-Foi desenvolvido com foco em boas práticas e clareza, ideal para ambientes corporativos ou microserviços distribuídos.
 
 
