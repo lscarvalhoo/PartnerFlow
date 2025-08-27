@@ -1,7 +1,6 @@
 # 🧾 PartnerFlow API
 
-**PartnerFlow** é uma API de pedidos desenvolvida como parte de um **teste técnico para a consultoria Venice**.  
-Ela integra diferentes tecnologias para armazenar dados, distribuir mensagens e aplicar boas práticas de arquitetura de software.
+**PartnerFlow** integra diferentes tecnologias para armazenar dados, distribuir mensagens e aplicar boas práticas de arquitetura de software.
 
 ---
 
